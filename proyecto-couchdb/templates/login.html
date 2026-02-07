@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUVADE - Sistema Inteligente</title>
+    <style>
+        :root {
+            --iuvade-primary: #1e3a8a;
+            --iuvade-primary-light: #3b82f6;
+            --iuvade-accent: #60a5fa;
+            --iuvade-dark: #0f172a;
+            --iuvade-light: #f8fafc;
+            --iuvade-surface: #ffffff;
+            --iuvade-border: #e2e8f0;
+            --iuvade-success: #10b981;
+            --iuvade-danger: #ef4444;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--iuvade-dark) 0%, var(--iuvade-primary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-card {
+            background: var(--iuvade-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--iuvade-primary) 0%, var(--iuvade-accent) 100%);
+        }
+        
+        .login-header {
+            padding: 40px 40px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        .brand-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .brand-login .logo {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--iuvade-primary);
+            letter-spacing: 1px;
+        }
+        
+        .ai-badge-login {
+            background: var(--iuvade-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: gentle-pulse 3s infinite;
+        }
+        
+        @keyframes gentle-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .login-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+        
+        .login-form {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--iuvade-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--iuvade-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.25s;
+            background: var(--iuvade-light);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--iuvade-primary);
+            background: var(--iuvade-surface);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--iuvade-primary) 0%, var(--iuvade-primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--iuvade-success);
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid var(--iuvade-danger);
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid var(--iuvade-warning);
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid var(--iuvade-primary);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-check input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .form-check label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--iuvade-border);
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .login-footer a {
+            color: var(--iuvade-primary);
+            text-decoration: none;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 0;
+            }
+            
+            .login-header {
+                padding: 30px 20px 15px;
+            }
+            
+            .login-form {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="brand-login">
+                    <div class="logo">IUVADE</div>
+                    <div class="ai-badge-login">IA</div>
+                </div>
+                <div class="login-subtitle">Sistema Inteligente de Gestión de Bases de Datos</div>
+            </div>
+            
+            <div class="login-form">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {% if category == 'success' %} 
+                                {% elif category == 'danger' %} 
+                                {% elif category == 'warning' %} 
+                                {% else %} ℹ️
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="username"> Usuario</label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               class="form-input" 
+                               placeholder="Ingresa tu usuario"
+                               required
+                               autocomplete="username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password"> Contraseña</label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="form-input" 
+                               placeholder="Ingresa tu contraseña"
+                               required
+                               autocomplete="current-password">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Recordar mi sesión</label>
+                    </div>
+                    
+                    <button type="submit" class="btn-login">
+                        <span>🚀 Iniciar Sesión</span>
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    <p>© 2024 IUVADE - Sistema Inteligente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

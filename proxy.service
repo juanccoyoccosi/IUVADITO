@@ -1,0 +1,12 @@
+[Unit]
+Description=Proxy Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/iuvadito/chatbot/proxy.py
+WorkingDirectory=/home/iuvadito/chatbot
+Restart=always
+User=iuvadito
+
+[Install]
+WantedBy=multi-user.target

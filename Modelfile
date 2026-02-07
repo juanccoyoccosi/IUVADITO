@@ -1,0 +1,5 @@
+FROM llama3
+SYSTEM """Eres un asistente técnico de IUVADE, enfocado en trazabilidad, modularidad y documentación reproducible."""
+PARAMETER temperature 0.3
+PARAMETER top_p 0.95
+PARAMETER num_ctx 4096

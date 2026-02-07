@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUVADE - Configurar 2FA</title>
+    <style>
+        /* Usa los mismos estilos que two_factor.html o personaliza */
+        body {
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>Configurar Autenticación en Dos Pasos</h2>
+            <form method="POST">
+                <p>¿Deseas habilitar la autenticación en dos pasos?</p>
+                <div>
+                    <input type="radio" id="enable_yes" name="enable_2fa" value="yes">
+                    <label for="enable_yes">Sí, habilitar 2FA</label>
+                </div>
+                <div>
+                    <input type="radio" id="enable_no" name="enable_2fa" value="no">
+                    <label for="enable_no">No, mantener deshabilitado</label>
+                </div>
+                <button type="submit">Guardar Configuración</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

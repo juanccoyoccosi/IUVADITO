@@ -1,0 +1,92 @@
+@startuml Chatbot_Casos_Uso
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Usuario Final" as Usuario
+actor "Administrador" as Admin
+actor "Sistema Programado" as Sistema
+
+rectangle "Sistema Chatbot Inteligente" {
+  
+  package "Interacción Principal" {
+    usecase "Enviar consulta\npor WhatsApp" as UC1
+    usecase "Recibir respuesta\ndel chatbot" as UC2
+    usecase "Consultar información\ncon contexto RAG" as UC3
+  }
+  
+  package "Gestión de Datos" {
+    usecase "Almacenar consultas\ndel usuario" as UC4
+    usecase "Recuperar documentos\nde CouchDB" as UC5
+    usecase "Procesar lenguaje natural\ncon Gemini 2.5 Flash" as UC6
+  }
+  
+  package "Análisis y Reportes" {
+    usecase "Analizar datos\nde consultas" as UC7
+    usecase "Generar gráficos\nestadísticos" as UC8
+    usecase "Crear reporte\nPDF mensual" as UC9
+    usecase "Enviar reporte\npor Gmail" as UC10
+  }
+  
+  package "Administración" {
+    usecase "Gestionar documentos\nRAG en CouchDB" as UC11
+    usecase "Configurar flujos\nde N8N" as UC12
+    usecase "Monitorear\nconversaciones" as UC13
+  }
+  
+  package "Componentes Técnicos" {
+    usecase "Evolution API\n(WhatsApp Gateway)" as EVO
+    usecase "N8N\n(Automatización)" as N8N
+    usecase "Sistema RAG" as RAG
+  }
+}
+
+' Relaciones Usuario Final
+Usuario --> UC1
+Usuario --> UC2
+Usuario --> UC3
+
+' Relaciones Administrador
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC10 : recibe
+
+' Relaciones Sistema Programado
+Sistema --> UC7
+Sistema --> UC9
+
+' Relaciones entre Casos de Uso - Includes
+UC1 ..> EVO : <<include>>
+UC1 ..> UC4 : <<include>>
+EVO ..> N8N : <<include>>
+
+UC3 ..> RAG : <<include>>
+UC3 ..> UC6 : <<include>>
+RAG ..> UC5 : <<include>>
+
+UC7 ..> UC8 : <<include>>
+UC8 ..> UC9 : <<include>>
+UC9 ..> UC10 : <<include>>
+
+' Relaciones Extend
+UC2 ..> UC3 : <<extend>>
+N8N ..> UC7 : <<extend>>
+N8N ..> UC9 : <<extend>>
+
+note right of UC4
+  Todas las consultas se almacenan
+  en CouchDB para análisis posterior
+end note
+
+note right of UC10
+  Se envía automáticamente
+  cada mes vía Gmail API
+end note
+
+note bottom of UC6
+  Gemini 2.5 Flash procesa
+  el lenguaje natural y genera
+  respuestas contextuales
+end note
+
+@enduml

@@ -1,0 +1,12 @@
+[Unit]
+Description=Proxy Evolution API Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/iuvadito/chatbot/proxyevoapi.py
+WorkingDirectory=/home/iuvadito/chatbot
+Restart=always
+User=iuvadito
+
+[Install]
+WantedBy=multi-user.target

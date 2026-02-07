@@ -1,0 +1,16 @@
+# Entornos virtuales
+venv/
+__pycache__/
+
+# Archivos de configuración sensibles
+.env
+credenciales/
+server.crt
+server.key
+
+# Logs y temporales
+logs/
+*.log
+
+# Backups
+*_backup_*.py

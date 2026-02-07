@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Digital - IUVADITO</title>
+    <!-- Incluyendo Tailwind CSS para un estilo moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+
+        /* 1. Animación Inquieta (Float/Bounce) */
+        @keyframes float {
+            0% { transform: translate(0, 0px) rotate(0deg); }
+            25% { transform: translate(1px, -3px) rotate(0.5deg); }
+            50% { transform: translate(-1px, 0px) rotate(-0.5deg); }
+            75% { transform: translate(1px, -3px) rotate(0.5deg); }
+            100% { transform: translate(0, 0px) rotate(0deg); }
+        }
+
+        #assistant-container {
+            /* Aplica la animación al contenedor de la imagen */
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.2));
+            transition: transform 0.1s ease;
+            cursor: pointer;
+        }
+
+        #assistant-container:hover {
+            transform: scale(1.05) translate(0, -5px);
+        }
+
+        /* 2. Burbuja de Diálogo (Nube) */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            border: 2px solid #10b981;
+        }
+
+        /* La punta del globo (triangle/arrow) */
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            right: 25px; /* Posición ajustada para apuntar a la cabeza */
+            bottom: -20px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #10b981; /* Color del borde */
+            border-bottom: 0;
+        }
+
+        /* La punta blanca interna */
+        .speech-bubble:before {
+            content: '';
+            position: absolute;
+            right: 25px;
+            bottom: -16px; 
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ffffff; /* Color de fondo */
+            border-bottom: 0;
+            z-index: 10;
+        }
+        
+        /* Opciones de la guía */
+        .guide-option {
+            transition: background-color 0.15s ease;
+        }
+        .guide-option:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-8">
+
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Asistente de Soporte Interactivo</h1>
+    <p class="text-gray-600 mb-10 max-w-lg">Haz clic en el asistente para abrir las opciones de ayuda. La imagen ahora tiene una animación 'inquieta'.</p>
+
+    <!-- Contenedor de Textos de Ayuda -->
+    
+
+    <!-- Contenedor Fijo del Asistente (Bottom Right) -->
+    <div class="fixed bottom-0 right-0 p-4 sm:p-8 flex flex-col items-end z-50">
+        
+        <!-- Burbuja de Diálogo (Nube) -->
+        <div id="speech-bubble" class="speech-bubble mb-4 w-64 md:w-80 transition-all duration-300 opacity-0 -translate-y-4 scale-90 origin-bottom-right pointer-events-none">
+            
+            <p class="font-bold text-center text-lg text-green-700 mb-3 border-b pb-2">¡Hola! Soy tu Asistente</p>
+            <p class="text-sm text-gray-700 mb-4">¿En qué puedo ayudarte hoy?</p>
+            
+            <div id="options-container" class="space-y-2">
+                <!-- Botones de Opciones -->
+                <button onclick="displayInfo('opcion1')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4DD; Crear un Documento
+                </button>
+                <button onclick="displayInfo('opcion2')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4C1; Gestionar Archivos
+                </button>
+                <button onclick="displayInfo('opcion3')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4A1; Consejos de Uso
+                </button>
+                <button onclick="displayInfo('opcion4')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x2753; Soporte Técnico
+                </button>
+            </div>
+        </div>
+
+        <!-- Imagen del Asistente (Contenedor con animación) -->
+        <div id="assistant-container" class="w-32 h-48 md:w-40 md:h-64" onclick="toggleBubble()">
+            <img 
+                src="../static/images/iuvadito.png" 
+                alt="Asistente digital con audífonos y tablet" 
+                class="w-full h-full object-contain">
+        </div>
+
+    </div>
+
+    <script>
+        // Objeto para almacenar la información de ayuda
+        const guideInfo = {
+            opcion1: {
+                title: "Crear un Documento Nuevo",
+                text: "Para comenzar un nuevo proyecto, haz clic en el botón 'Nuevo' en la esquina superior izquierda. Se abrirá una plantilla en blanco lista para que empieces a escribir. ¡No olvides guardar tu progreso!",
+                color: "bg-blue-100 border-blue-400 text-blue-800"
+            },
+            opcion2: {
+                title: "Gestionar Archivos",
+                text: "Puedes ver todos tus archivos guardados en la sección 'Mis Documentos'. Para organizar, usa la opción 'Crear Carpeta' y arrastra tus archivos. Usa la barra de búsqueda para encontrar archivos rápidamente por nombre o fecha.",
+                color: "bg-green-100 border-green-400 text-green-800"
+            },
+            opcion3: {
+                title: "Consejos de Uso",
+                text: "Aprovecha los atajos de teclado para ser más eficiente. Usa la barra lateral para acceder rápidamente a plantillas y herramientas. ¡Explora todas las funciones!",
+                color: "bg-yellow-100 border-yellow-400 text-yellow-800"
+            },
+            opcion4: {
+                title: "Soporte Técnico",
+                text: "Si encuentras algún problema o error, verifica primero nuestra sección de 'Preguntas Frecuentes'. Si no encuentras la solución, haz clic en el botón 'Contactar Soporte' (simulado aquí) o reinicia la aplicación para intentar resolver el fallo.",
+                color: "bg-red-100 border-red-400 text-red-800"
+            }
+        };
+
+        const bubble = document.getElementById('speech-bubble');
+        const infoBoxesContainer = document.getElementById('info-boxes');
+        let isBubbleVisible = false;
+
+        /**
+         * Muestra u oculta la burbuja de diálogo del asistente.
+         */
+        function toggleBubble() {
+            isBubbleVisible = !isBubbleVisible;
+            if (isBubbleVisible) {
+                // Mostrar con animación
+                bubble.classList.remove('opacity-0', '-translate-y-4', 'scale-90', 'pointer-events-none');
+                bubble.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+            } else {
+                // Ocultar con animación
+                bubble.classList.add('opacity-0', '-translate-y-4', 'scale-90', 'pointer-events-none');
+                bubble.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+            }
+        }
+
+        /**
+         * Muestra el cuadro de texto de ayuda correspondiente a la opción seleccionada.
+         * @param {string} optionKey - La clave de la opción (e.g., 'opcion1').
+         */
+        function displayInfo(optionKey) {
+            const info = guideInfo[optionKey];
+            if (!info) return;
+
+            // 1. Ocultar la burbuja después de la selección
+            toggleBubble();
+
+            // 2. Limpiar cuadros de texto previos
+            infoBoxesContainer.innerHTML = '';
+
+            // 3. Crear el nuevo cuadro de texto
+            const infoBox = document.createElement('div');
+            infoBox.className = `p-4 sm:p-6 rounded-xl border-l-4 shadow-lg ${info.color} transition-all duration-500 ease-in-out`;
+            
+            infoBox.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <h2 class="text-xl font-semibold mb-2">${info.title}</h2>
+                    <button class="text-gray-500 hover:text-gray-700" onclick="this.parentNode.parentNode.remove()">
+                        <!-- Icono de Cierre (SVG) -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-sm">${info.text}</p>
+            `;
+            
+            // 4. Insertar el nuevo cuadro de texto en el contenedor
+            infoBoxesContainer.appendChild(infoBox);
+
+            // 5. Scroll hasta el nuevo cuadro de texto para visibilidad
+            infoBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

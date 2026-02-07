@@ -1,0 +1,247 @@
+# 🔤 NLP y procesamiento semántico
+import nltk
+from nltk.stem.lancaster import LancasterStemmer
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import cosine
+
+# 🧠 IA y modelos
+from llama_cpp import Llama
+import tensorflow as tf
+from ollamafreeapi import OllamaFreeAPI
+
+# 📡 Telegram Bot
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+
+# 🧰 Utilidades generales
+import numpy as np
+import json
+import random
+import logging
+import os
+import pickle
+import subprocess
+import difflib
+import requests
+from typing import Tuple
+
+# 🗄️ Base de datos
+import couchdb
+from flask import Flask, request, jsonify
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--port", type=int, default=5000)
+args = parser.parse_args()
+
+
+class IntentClassifier:
+    def __init__(self, db, campo_texto="patrones", campo_embeddings="embedding", llama_url="http://179.6.164.176:11434"):
+        self.modelo = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
+        self.intent_embeddings = {}
+        self.db = db
+        self.llama_url = llama_url
+        
+        # Generar embeddings para documentos que no los tengan
+        for doc_id in db:
+            doc = db[doc_id]
+            
+            if campo_embeddings in doc:
+                print(f"Documento {doc_id} ya tiene embedding")
+                self.intent_embeddings[doc_id] = doc[campo_embeddings]
+                continue
+                
+            if campo_texto in doc:
+                texto = doc.get(campo_texto)
+                embedding = self.modelo.encode([texto])[0].tolist()
+                doc[campo_embeddings] = embedding
+                db.save(doc)
+                self.intent_embeddings[doc_id] = embedding
+                print(f"Embedding generado para {doc_id}")
+            else:
+                print(f"Documento {doc_id} no tiene el campo '{campo_texto}'")
+
+    def classify_with_rag(self, query: str, threshold: float = 0.3) -> Tuple[str, float, str]:
+        """Clasifica la intención y SIEMPRE genera respuesta usando RAG con Llama 3.1"""
+        query_embedding = self.modelo.encode([query])[0]
+        
+        best_intent = "None"
+        best_score = -1
+        best_doc = None
+        
+        # Encontrar el documento más similar
+        for intent, intent_embedding in self.intent_embeddings.items():
+            similarity = np.dot(query_embedding, intent_embedding) / (
+                np.linalg.norm(query_embedding) * np.linalg.norm(intent_embedding)
+            )
+            
+            if similarity > best_score:
+                best_score = similarity
+                best_intent = intent
+                best_doc = self.db[best_intent]
+        
+        # SIEMPRE generar respuesta con Llama 3.1 usando RAG
+        if best_score < threshold:
+            respuesta_llama = self.generate_response_with_llama_unknown(query, best_doc)
+            return "unknown", best_score, respuesta_llama
+        else:
+            respuesta_llama = self.generate_response_with_llama(query, best_doc)
+            return best_intent, best_score, respuesta_llama
+
+    def generate_response_with_llama(self, query: str, context_doc: dict) -> str:
+        """Genera respuesta usando Llama 3.1 con el contexto recuperado"""
+        
+        # Preparar el contexto del documento
+        context_info = []
+        if 'patrones' in context_doc:
+            context_info.append(f"Patrones relacionados: {context_doc['patrones']}")
+        if 'respuestas' in context_doc:
+            context_info.append(f"Información relevante: {context_doc['respuestas']}")
+        if 'categoria' in context_doc:
+            context_info.append(f"Categoría: {context_doc['categoria']}")
+        
+        context_text = "\n".join(context_info)
+        
+        # System prompt para Llama
+        system_prompt = """Eres un asistente inteligente y útil. Tu tarea es responder preguntas basándote en la información proporcionada en el contexto. 
+
+Instrucciones:
+- Usa únicamente la información del contexto para responder
+- Si la información no es suficiente, di que necesitas más detalles
+- Responde de manera clara, concisa y amigable
+- Mantén un tono profesional pero cercano
+- Si hay múltiples opciones o respuestas posibles, menciónalas todas"""
+
+        # Preparar el prompt completo
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+{system_prompt}<|eot_id|>
+
+<|start_header_id|>user<|end_header_id|>
+Contexto relevante:
+{context_text}
+
+Pregunta del usuario: {query}
+
+Por favor, responde basándote en el contexto proporcionado.<|eot_id|>
+
+<|start_header_id|>assistant<|end_header_id|>"""
+
+        return self._call_llama_api(prompt)
+
+    def generate_response_with_llama_unknown(self, query: str, best_doc: dict) -> str:
+        """Genera respuesta para consultas con baja similitud usando RAG"""
+        
+        # Usar el mejor documento encontrado aunque la similitud sea baja
+        context_info = ["Información disponible en la base de conocimientos:"]
+        if best_doc:
+            if 'patrones' in best_doc:
+                context_info.append(f"Patrones: {best_doc['patrones']}")
+            if 'respuestas' in best_doc:
+                context_info.append(f"Información: {best_doc['respuestas']}")
+            if 'categoria' in best_doc:
+                context_info.append(f"Categoría: {best_doc['categoria']}")
+        
+        context_text = "\n".join(context_info)
+        
+        # System prompt específico para consultas unclear
+        system_prompt = """Eres un asistente inteligente. El usuario ha hecho una consulta que no coincide exactamente con la información disponible, pero debes intentar ayudar.
+
+Instrucciones:
+- Usa la información del contexto si es relevante
+- Si no hay información relevante, pide amablemente más detalles específicos
+- Sugiere temas relacionados si los hay
+- Mantén un tono amigable y útil
+- No inventes información que no esté en el contexto"""
+
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+{system_prompt}<|eot_id|>
+
+<|start_header_id|>user<|end_header_id|>
+{context_text}
+
+Consulta del usuario: {query}
+
+La consulta no tiene una coincidencia exacta. Ayuda al usuario basándote en la información disponible o pide más detalles.<|eot_id|>
+
+<|start_header_id|>assistant<|end_header_id|>"""
+
+        return self._call_llama_api(prompt)
+
+    def _call_llama_api(self, prompt: str) -> str:
+        """Método helper para llamar a la API de Llama"""
+        try:
+            # Llamada a Ollama con Llama 3.1
+            response = requests.post(
+                f"{self.llama_url}/api/generate",
+                json={
+                    "model": "llama3-1-8b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.7,
+                        "max_tokens": 512,
+                        "top_p": 0.9
+                    }
+                },
+                timeout=180
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result.get('response', 'Error al generar respuesta')
+            else:
+                print(f"Error en la API de Ollama: {response.status_code}")
+                return "Error: No se pudo conectar con el servicio de IA. Por favor, verifica que Ollama esté ejecutándose."
+                
+        except requests.exceptions.RequestException as e:
+            print(f"Error conectando con Ollama: {e}")
+            return "Error: Servicio de IA no disponible. Por favor, verifica la conexión con Ollama."
+
+
+app = Flask(__name__)
+
+# Inicializar el clasificador una vez
+USERNAME = "Juan"
+PASSWORD = "Elpro123"
+DATABASE = "chatbot_data"
+couch = f"http://{USERNAME}:{PASSWORD}@62.171.179.255:5984/"
+server = couchdb.Server(couch)
+db = server[DATABASE]
+classifier = IntentClassifier(db, llama_url="http://localhost:11434")
+
+@app.route('/bot', methods=['POST'])
+def responder():
+    try:
+        data = request.json
+        mensaje = data.get("body", {}).get("data", {}).get("message", {}).get("conversation", "")
+        nombre = data.get("body", {}).get("data", {}).get("pushName", "Usuario")
+        
+        if not mensaje:
+            return jsonify({
+                "respuesta": "No recibí ningún mensaje.",
+                "estado": "ERROR"
+            })
+        
+        print(f"📱 Procesando mensaje de {nombre}: {mensaje}")
+        
+        # Usar el clasificador con RAG para responder
+        intent, score, respuesta = classifier.classify_with_rag(mensaje)
+        
+        print(f"✅ Respuesta generada: {respuesta[:100]}...")
+        
+        return jsonify({
+            "text": respuesta,
+            "estado": "OK"
+        })
+        
+    except Exception as e:
+        print(f"❌ Error procesando solicitud: {e}")
+        return jsonify({
+            "respuesta": "Error interno del servidor. Intenta nuevamente.",
+            "estado": "ERROR"
+        })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=args.port)

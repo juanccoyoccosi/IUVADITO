@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <title>IUVADE - Sistema Inteligente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --iuvade-primary: #1e3a8a;
+            --iuvade-secondary: #3b82f6;
+            --iuvade-accent: #60a5fa;
+            --iuvade-dark: #0f172a;
+            --iuvade-primary-light: #3b82f6;
+    --iuvade-accent: #60a5fa;
+    --iuvade-light: #f8fafc;
+    --iuvade-surface: #ffffff;
+    --iuvade-border: #e2e8f0;
+    --iuvade-success: #10b981;
+    --iuvade-danger: #ef4444;
+    --iuvade-warning: #f59e0b;
+    --iuvade-ai: #8b5cf6;
+    --iuvade-move: #06b6d4;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--iuvade-dark) 0%, #1a237e 100%);
+    min-height: 100vh;
+    padding: 24px;
+    color: #1e293b;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    background: var(--iuvade-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    min-height: calc(100vh - 48px);
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, var(--iuvade-primary) 0%, #2563eb 100%);
+    color: white;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: gentle-pulse 3s infinite;
+}
+
+@keyframes gentle-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.header-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 400;
+    margin-top: 4px;
+}
+
+/* Content Layout */
+.content {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 600px;
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--iuvade-light);
+    border-right: 1px solid var(--iuvade-border);
+    padding: 28px 24px;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    color: var(--iuvade-primary);
+    margin-bottom: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.db-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.db-item {
+    padding: 16px;
+    background: var(--iuvade-surface);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--iuvade-border);
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.db-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--iuvade-primary);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.db-item:hover {
+    background: #f0f9ff;
+    border-color: var(--iuvade-accent);
+    transform: translateX(4px);
+}
+
+.db-item:hover::before {
+    transform: scaleY(1);
+}
+
+.db-item.active {
+    background: linear-gradient(135deg, var(--iuvade-primary) 0%, var(--iuvade-primary-light) 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.db-item.active::before {
+    background: white;
+    transform: scaleY(1);
+}
+
+/* Main Content */
+.main-content {
+    padding: 32px 40px;
+    overflow-y: auto;
+    background: var(--iuvade-surface);
+}
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    align-items: center;
+    background: var(--iuvade-light);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--iuvade-border);
+}
+
+.search-container {
+    flex: 1;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.search-box {
+    width: 100%;
+    padding: 14px 20px 14px 48px;
+    border: 1px solid var(--iuvade-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    transition: var(--transition);
+    background: var(--iuvade-surface);
+    font-family: inherit;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: var(--iuvade-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+/* Buttons */
+.btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--iuvade-success) 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+}
+
+.btn-edit, .btn-delete, .btn-view, .btn-move {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    flex: 1;
+    border-radius: var(--radius-sm);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.btn-edit { background: var(--iuvade-primary-light); }
+.btn-delete { background: var(--iuvade-danger); }
+.btn-view { background: var(--iuvade-warning); }
+.btn-move { background: var(--iuvade-move); }
+
+.btn-edit:hover { background: var(--iuvade-primary); transform: translateY(-1px); }
+.btn-delete:hover { background: #dc2626; transform: translateY(-1px); }
+.btn-view:hover { background: #d97706; transform: translateY(-1px); }
+.btn-move:hover { background: #0891b2; transform: translateY(-1px); }
+
+/* Documents Grid */
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+}
+
+.document-card {
+    background: var(--iuvade-surface);
+    border: 1px solid var(--iuvade-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+    position: relative;
+    overflow: hidden;
+}
+
+.document-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--iuvade-primary) 0%, var(--iuvade-accent) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.document-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    border-color: var(--iuvade-accent);
+}
+
+.document-card:hover::before {
+    transform: scaleX(1);
+}
+
+.doc-id {
+    font-weight: 700;
+    color: var(--iuvade-primary);
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--iuvade-border);
+    font-family: 'SF Mono', Monaco, monospace;
+    word-break: break-all;
+}
+
+.doc-preview {
+    flex: 1;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.doc-field {
+    margin-bottom: 12px;
+    padding: 14px;
+    background: var(--iuvade-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    border-left: 3px solid var(--iuvade-accent);
+    transition: transform 0.2s;
+}
+
+.doc-field:hover {
+    transform: translateX(2px);
+}
+
+.doc-field strong {
+    color: var(--iuvade-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.doc-field-value {
+    color: #475569;
+    word-break: break-word;
+    white-space: pre-wrap;
+    max-height: 80px;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.doc-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--iuvade-border);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.9);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(5px);
+}
+
+.modal.active {
+    display: flex;
+    animation: modal-fade 0.3s ease;
+}
+
+@keyframes modal-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: var(--iuvade-surface);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    animation: modal-slide 0.3s ease;
+}
+
+@keyframes modal-slide {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 1.75rem 2rem;
+    border-bottom: 1px solid var(--iuvade-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--iuvade-light);
+}
+
+.modal-header h2 {
+    color: var(--iuvade-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    background: var(--iuvade-danger);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1.5rem;
+}
+
+.close-btn:hover {
+    background: #dc2626;
+    transform: rotate(90deg);
+}
+
+/* Form Elements */
+.ai-context-box {
+    background: linear-gradient(135deg, var(--iuvade-ai) 0%, #a78bfa 100%);
+    color: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+.ai-context-box h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+.ai-context-box p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--iuvade-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--iuvade-border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--iuvade-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.btn-save {
+    background: var(--iuvade-success);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+}
+
+.btn-save:hover {
+    background: #059669;
+}
+
+.btn-add-field {
+    background: var(--iuvade-primary-light);
+    color: white;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+}
+
+.btn-add-field:hover {
+    background: var(--iuvade-primary);
+}
+
+.simple-form {
+    background: var(--iuvade-light);
+    padding: 25px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+}
+
+.simple-form h3 {
+    color: var(--iuvade-primary);
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--iuvade-primary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(30, 58, 138, 0.1);
+    border-top-color: var(--iuvade-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 24px;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-weight: 500;
+    z-index: 2000;
+    animation: slideIn 0.3s ease;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 400px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.success {
+    background: linear-gradient(135deg, var(--iuvade-success) 0%, #059669 100%);
+}
+
+.notification.error {
+    background: linear-gradient(135deg, var(--iuvade-danger) 0%, #dc2626 100%);
+}
+
+/* Detail View */
+.detail-view {
+    max-height: 60vh;
+    overflow-y: auto;
+    background: var(--iuvade-light);
+    padding: 20px;
+    border-radius: var(--radius-md);
+}
+
+.detail-field {
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--iuvade-surface);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--iuvade-primary);
+}
+
+.detail-field-key {
+    color: var(--iuvade-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.detail-field-value {
+    color: #475569;
+    font-size: 0.9rem;
+    word-break: break-all;
+    white-space: pre-wrap;
+    padding: 12px;
+    background: var(--iuvade-light);
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Embedding Controls */
+.embedding-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--iuvade-accent);
+}
+
+.btn-generate-embedding {
+    background: linear-gradient(135deg, var(--iuvade-ai) 0%, #a78bfa 100%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    box-shadow: 0 3px 10px rgba(139, 92, 246, 0.25);
+}
+
+.btn-generate-embedding:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+}
+
+.btn-generate-embedding:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.embedding-status {
+    font-size: 0.85rem;
+    color: var(--iuvade-ai);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.embedding-info {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 3px solid rgba(139, 92, 246, 0.3);
+    border-top-color: var(--iuvade-ai);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Move Modal */
+.move-modal-content {
+    max-width: 500px;
+}
+
+.db-select-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.db-select-item {
+    padding: 16px;
+    margin-bottom: 10px;
+    background: var(--iuvade-light);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.db-select-item:hover {
+    background: var(--iuvade-accent);
+    color: white;
+}
+
+.db-select-item.selected {
+    background: var(--iuvade-primary);
+    color: white;
+    border-color: var(--iuvade-primary);
+}
+
+.move-info {
+    background: #fef3c7;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--iuvade-warning);
+}
+
+.move-info strong {
+    color: var(--iuvade-warning);
+}
+
+/* WhatsApp Float */
+.whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #25D366;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.5);
+    cursor: pointer;
+    transition: var(--transition);
+    z-index: 999;
+    text-decoration: none;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(37, 211, 102, 0.7);
+}
+
+/* Utility Classes */
+.empty-message {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--iuvade-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--iuvade-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--iuvade-primary-light);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .documents-grid {
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+    
+    .content {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--iuvade-border);
+        max-height: 300px;
+    }
+    
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .toolbar {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        margin: 1rem;
+        max-height: 85vh;
+    }
+}
+
+/* Focus states for accessibility */
+:focus-visible {
+    outline: 2px solid var(--iuvade-primary);
+    outline-offset: 2px;
+}
+
+        /* iuvadito estilos */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+
+        /* 1. Animación Inquieta (Float/Bounce) */
+        @keyframes float {
+            0% { transform: translate(0, 0px) rotate(0deg); }
+            25% { transform: translate(1px, -3px) rotate(0.5deg); }
+            50% { transform: translate(-1px, 0px) rotate(-0.5deg); }
+            75% { transform: translate(1px, -3px) rotate(0.5deg); }
+            100% { transform: translate(0, 0px) rotate(0deg); }
+        }
+
+        #assistant-container {
+            /* Aplica la animación al contenedor de la imagen */
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.2));
+            transition: transform 0.1s ease;
+            cursor: pointer;
+        }
+
+        #assistant-container:hover {
+            transform: scale(1.05) translate(0, -5px);
+        }
+
+        /* 2. Burbuja de Diálogo (Nube) */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            border: 2px solid #10b981;
+        }
+
+        /* La punta del globo (triangle/arrow) */
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            right: 25px; /* Posición ajustada para apuntar a la cabeza */
+            bottom: -20px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #10b981; /* Color del borde */
+            border-bottom: 0;
+        }
+
+        /* La punta blanca interna */
+        .speech-bubble:before {
+            content: '';
+            position: absolute;
+            right: 25px;
+            bottom: -16px; 
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #ffffff; /* Color de fondo */
+            border-bottom: 0;
+            z-index: 10;
+        }
+        
+        /* Opciones de la guía */
+        .guide-option {
+            transition: background-color 0.15s ease;
+        }
+        .guide-option:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div>
+                    <div class="logo" >IUVADE <span class="ai-badge">IA</span></div>
+                    
+                    <div class="header-subtitle">Sistema Inteligente de Gestión - Simplificado para Trabajadores</div>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" style="
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+">
+     Cerrar Sesión
+</a>
+
+<!-- Opcional: JavaScript para confirmación -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.querySelector('a[href="{{ url_for("logout") }}"]');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+        </div>
+        
+        <div class="content">
+            <div class="sidebar">
+                <h2>Bases de Datos</h2>
+                <ul class="db-list" id="dbList">
+                    <li class="loading">Cargando...</li>
+                </ul>
+            </div>
+            
+            <div class="main-content">
+                <div class="toolbar" id="toolbar" style="display: none;">
+                    <input type="text" class="search-box" id="searchBox" placeholder="Buscar documentos...">
+                    <button class="btn btn-primary" onclick="showCreateModal()">+ Nuevo Registro</button>
+                </div>
+                
+                <div class="documents-grid" id="documentsGrid">
+                    <div class="loading">Selecciona una base de datos para comenzar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Crear/Editar -->
+    <!-- Modal para Crear/Editar - VERSIÓN GRANDE Y LEGIBLE -->
+<div class="modal" id="editModal">
+    <div class="modal-content" style="max-width: 1400px; width: 95%; height: 90vh;">
+        <div class="modal-header">
+            <h2 id="modalTitle">Nuevo Registro</h2>
+            <button class="close-btn" onclick="closeEditModal()">×</button>
+        </div>
+        
+        <div class="modal-body" style="display: flex; gap: 20px; padding: 0; height: calc(100% - 80px);">
+            <!-- Columna izquierda: formulario (65%) -->
+            <div class="form-column" style="flex: 0 0 65%; padding: 25px; overflow-y: auto; background: #f8fafc;">
+                <div class="ai-context-box" id="aiContextBox" style="display: none;">
+                    <h3>🧠 Asistente Inteligente</h3>
+                    <p id="aiContextText">Analizando documento...</p>
+                </div>
+                
+                <div class="simple-form">
+                    <h3 style="font-size: 1.5em; margin-bottom: 20px;">📝 Completa los campos</h3>
+                    <form id="documentForm">
+                        <input type="hidden" id="docId">
+                        <input type="hidden" id="docRev">
+                        
+                        <div id="simpleFieldsContainer"></div>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 30px;">
+                            <button type="button" class="btn btn-add-field" onclick="addSimpleFieldButton()" style="flex: 1; padding: 15px; font-size: 1.1em; background: var(--iuvade-secondary);">
+                                <span style="font-size: 1.3em; margin-right: 10px;">+</span> Agregar Campo
+                            </button>
+                            <button type="submit" class="btn btn-save" style="flex: 2; padding: 15px; font-size: 1.2em; background: var(--iuvade-success);">
+                                <span style="font-size: 1.3em; margin-right: 10px;">💾</span> GUARDAR REGISTRO
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Columna derecha: manual (35%) - TEXTO GRANDE -->
+            <div class="guide-sidebar" style="flex: 0 0 35%; background: white; border-left: 3px solid var(--iuvade-primary); padding: 25px; overflow-y: auto; font-size: 16px;">
+                <!-- Encabezado grande -->
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: var(--iuvade-primary); font-size: 2em; margin-bottom: 10px;">📚 MANUAL</h1>
+                    <p style="color: #64748b; font-size: 1.2em; font-weight: 300;">Guía rápida para cada base de datos</p>
+                </div>
+                
+                <!-- Selector grande de base de datos -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: var(--iuvade-primary); font-size: 1.4em; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span>🎯</span> ¿QUÉ VAS A CREAR?
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <button onclick="showManualSection('chatbot')" style="text-align: left; padding: 20px; border: none; background: #dbeafe; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-size: 1.1em;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: var(--iuvade-primary); color: white; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5em;">
+                                    🤖
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; color: var(--iuvade-primary); font-size: 1.2em;">CHATBOT_DATA</div>
+                                    <div style="color: #475569; font-size: 0.9em;">Crear respuestas para el bot</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button onclick="showManualSection('vacant')" style="text-align: left; padding: 20px; border: none; background: #f0fdf4; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-size: 1.1em;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #10b981; color: white; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5em;">
+                                    📄
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; color: #10b981; font-size: 1.2em;">DATA_VACIO</div>
+                                    <div style="color: #475569; font-size: 0.9em;">Revisar consultas nuevas</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <div style="text-align: left; padding: 20px; border: none; background: #fef3c7; border-radius: 12px; font-size: 1.1em;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #f59e0b; color: white; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5em;">
+                                    ❓
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; color: #f59e0b; font-size: 1.2em;">DATA_FRECUENTQUESTION</div>
+                                    <div style="color: #92400e; font-size: 0.9em;">⚠️ SISTEMA AUTOMÁTICO</div>
+                                    <div style="color: #92400e; font-size: 0.9em; margin-top: 5px;">No se edita manualmente</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sección de información (se llena dinámicamente) -->
+                <div id="manualContent" style="background: #f8fafc; border-radius: 15px; padding: 25px; min-height: 400px;">
+                    <!-- Contenido se carga aquí dinámicamente -->
+                    <div style="text-align: center; padding: 50px 20px; color: #64748b;">
+                        <div style="font-size: 4em; margin-bottom: 20px;">👆</div>
+                        <h3 style="color: var(--iuvade-primary); font-size: 1.5em; margin-bottom: 15px;">SELECCIONA UNA OPCIÓN</h3>
+                        <p style="font-size: 1.1em; line-height: 1.5;">Haz clic en una base de datos para ver las instrucciones específicas</p>
+                    </div>
+                </div>
+                
+                <!-- Consejo general grande -->
+                <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--iuvade-primary) 0%, var(--iuvade-secondary) 100%); color: white; border-radius: 15px;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                        <span>💡</span> CONSEJO GENERAL
+                    </h3>
+                    <p style="font-size: 1.1em; line-height: 1.4;">
+                        <strong>DATA_VACIO → CHATBOT_DATA</strong><br>
+                        Revisa en data_vacio, mejora la información y luego USA EL BOTÓN "MOVER"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos para texto grande y legible -->
+<style>
+/* Fuentes más grandes para mejor legibilidad */
+.guide-sidebar {
+    font-size: 16px !important;
+}
+
+.guide-sidebar h1,
+.guide-sidebar h2,
+.guide-sidebar h3 {
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+}
+
+.guide-sidebar p {
+    line-height: 1.5 !important;
+    margin-bottom: 15px !important;
+}
+
+/* Botones grandes y fáciles de clickear */
+.guide-sidebar button {
+    font-size: 1.1em !important;
+    padding: 15px 20px !important;
+}
+
+.guide-sidebar button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Listas grandes */
+.guide-sidebar ol,
+.guide-sidebar ul {
+    padding-left: 25px !important;
+    font-size: 1.1em !important;
+}
+
+.guide-sidebar li {
+    margin-bottom: 10px !important;
+    line-height: 1.5 !important;
+}
+
+/* Código legible */
+.guide-sidebar pre,
+.guide-sidebar code {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+/* Mejor contraste */
+.guide-sidebar {
+    color: #1f2937 !important;
+}
+
+/* Scroll suave */
+.guide-sidebar {
+    scroll-behavior: smooth;
+}
+</style>
+
+<script>
+// Contenido del manual en texto GRANDE y CLARO
+const manualContent = {
+    chatbot: `
+        <div style="font-size: 1.1em;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                <div style="background: var(--iuvade-primary); color: white; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2em;">
+                    🤖
+                </div>
+                <div>
+                    <h2 style="color: var(--iuvade-primary); font-size: 1.8em; margin: 0;">CHATBOT_DATA</h2>
+                    <p style="color: #64748b; font-size: 1.1em; margin: 5px 0 0 0;">Base de datos principal del chatbot</p>
+                </div>
+            </div>
+            
+            <div style="background: #dbeafe; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                <h3 style="color: var(--iuvade-primary); font-size: 1.4em; margin-bottom: 15px;">🎯 ¿PARA QUÉ SIRVE?</h3>
+                <p style="font-size: 1.2em; line-height: 1.5; margin: 0;">
+                    Aquí creas las respuestas que el chatbot dará a los usuarios.
+                    Cada documento es una "intención" que el bot puede entender.
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: var(--iuvade-primary); font-size: 1.4em; margin-bottom: 15px;">📝 CAMPOS OBLIGATORIOS</h3>
+                <div style="display: grid; gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid var(--iuvade-success);">
+                        <div style="font-weight: bold; color: var(--iuvade-primary); font-size: 1.2em; margin-bottom: 5px;">INTENCION</div>
+                        <p style="margin: 0; color: #475569;">Nombre único en minúsculas<br><strong>Ejemplo:</strong> "saludo", "consultar_horario"</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid var(--iuvade-success);">
+                        <div style="font-weight: bold; color: var(--iuvade-primary); font-size: 1.2em; margin-bottom: 5px;">PATRONES</div>
+                        <p style="margin: 0; color: #475569;">Frases que dirían los usuarios<br><strong>Formato:</strong> ["hola", "buenos días", "qué tal"]</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid var(--iuvade-success);">
+                        <div style="font-weight: bold; color: var(--iuvade-primary); font-size: 1.2em; margin-bottom: 5px;">RESPUESTAS</div>
+                        <p style="margin: 0; color: #475569;">Lo que responderá el bot<br><strong>Formato:</strong> ["¡Hola! 👋", "Buenos días"]</p>
+                    </div>
+                    
+
+                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid var(--iuvade-success);">
+  <div style="font-weight: bold; color: var(--iuvade-primary); font-size: 1.2em; margin-bottom: 5px;">
+    METADATA
+  </div>
+
+  <p style="margin: 0; color: #475569;">
+    <strong>Ejemplo de metadata:</strong>
+  </p>
+
+  <pre style="background:#f8fafc; padding:10px; border-radius:8px; overflow:auto; border:1px solid #e2e8f0; margin-top:6px; color:#334155;">
+{
+  "activo": true,
+  "creado_manualmente": true,
+  "fecha_creacion": "2025-11-15T23:14:00",
+  "keywords": ["sigge","facturación"],
+  "prioridad": "media",
+  "requiere_revision": false
+}
+  </pre>
+
+  <p style="margin: 10px 0 0; color: #475569;">
+    <strong>Explicación breve:</strong><br>
+    • <code>activo</code>: si está vigente.<br>
+    • <code>creado_manualmente</code>: hecho por persona o sistema.<br>
+    • <code>fecha_creacion</code>: formato ISO.<br>
+    • <code>keywords</code>: palabras clave relevantes.<br>
+    • <code>prioridad</code>: nivel de importancia.<br>
+    • <code>requiere_revision</code>: si necesita revisión.
+  </p>
+</div>
+                </div>
+            </div>
+            
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #10b981; font-size: 1.4em; margin-bottom: 15px;">✅ CONFIGURACIÓN CORRECTA</h3>
+                <div style="font-size: 1.1em;">
+                    <p style="margin-bottom: 10px;"><strong>metadata.activo:</strong> <span style="background: #10b981; color: white; padding: 2px 10px; border-radius: 4px;">true</span></p>
+                    <p style="margin-bottom: 10px;"><strong>metadata.creado_manualmente:</strong> <span style="background: #10b981; color: white; padding: 2px 10px; border-radius: 4px;">true</span></p>
+                    <p style="margin-bottom: 0;"><strong>metadata.requiere_revision:</strong> <span style="background: #ef4444; color: white; padding: 2px 10px; border-radius: 4px;">false</span></p>
+                </div>
+            </div>
+        </div>
+    `,
+    
+    vacant: `
+        <div style="font-size: 1.1em;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                <div style="background: #10b981; color: white; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2em;">
+                    📄
+                </div>
+                <div>
+                    <h2 style="color: #10b981; font-size: 1.8em; margin: 0;">DATA_VACIO</h2>
+                    <p style="color: #64748b; font-size: 1.1em; margin: 5px 0 0 0;">Consultas nuevas por revisar</p>
+                </div>
+            </div>
+            
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                <h3 style="color: #10b981; font-size: 1.4em; margin-bottom: 15px;">🔄 PROCESO DE TRABAJO</h3>
+                <p style="font-size: 1.2em; line-height: 1.5; margin: 0;">
+                    Aquí llegan consultas que el chatbot no entendió.
+                    Tu trabajo es mejorarlas y moverlas al chatbot.
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #10b981; font-size: 1.4em; margin-bottom: 15px;">📋 PASOS A SEGUIR</h3>
+                <div style="display: grid; gap: 20px;">
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: #10b981; color: white; min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: bold;">
+                            1
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #1f2937; font-size: 1.2em; margin-bottom: 5px;">REVISAR LA CONSULTA</div>
+                            <p style="margin: 0; color: #475569;">Lee lo que preguntó el usuario. ¿Es una consulta útil?</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: #10b981; color: white; min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: bold;">
+                            2
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #1f2937; font-size: 1.2em; margin-bottom: 5px;">MEJORAR LOS CAMPOS</div>
+                            <p style="margin: 0; color: #475569;">
+                                • Agrega variaciones en "patrones"<br>
+                                • Escribe buenas "respuestas"<br>
+                                • Añade "keywords" relevantes
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: #10b981; color: white; min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: bold;">
+                            3
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #1f2937; font-size: 1.2em; margin-bottom: 5px;">CAMBIAR CONFIGURACIÓN</div>
+                            <p style="margin: 0; color: #475569;">
+                                • <strong>activo:</strong> false → true<br>
+                                • <strong>creado_manualmente:</strong> false → true<br>
+                                • <strong>requiere_revision:</strong> true → false
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: var(--iuvade-primary); color: white; min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: bold;">
+                            4
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #1f2937; font-size: 1.2em; margin-bottom: 5px;">MOVER A CHATBOT_DATA</div>
+                            <p style="margin: 0; color: #475569;">
+                                <strong>IMPORTANTE:</strong> Después de guardar, usa el botón <span style="background: var(--iuvade-move); color: white; padding: 2px 8px; border-radius: 4px;">MOVER</span><br>
+                                Selecciona <strong>chatbot_data</strong> como destino
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #dbeafe; padding: 20px; border-radius: 12px;">
+                <h3 style="color: var(--iuvade-primary); font-size: 1.4em; margin-bottom: 15px;">🚨 RECUERDA</h3>
+                <p style="font-size: 1.2em; line-height: 1.5; margin: 0;">
+                    El documento SOLO funcionará en el chatbot después de moverlo a <strong>chatbot_data</strong>.
+                    data_vacio es solo para revisión temporal.
+                </p>
+            </div>
+        </div>
+    `
+};
+
+// Función para mostrar sección del manual
+function showManualSection(section) {
+    const contentDiv = document.getElementById('manualContent');
+    
+    // Remover cualquier sección activa
+    document.querySelectorAll('.guide-sidebar button').forEach(btn => {
+        btn.style.transform = 'none';
+        btn.style.boxShadow = 'none';
+    });
+    
+    // Resaltar el botón clickeado
+    if (event && event.target.closest('button')) {
+        const clickedBtn = event.target.closest('button');
+        clickedBtn.style.transform = 'translateY(-5px)';
+        clickedBtn.style.boxShadow = '0 15px 30px rgba(0,0,0,0.15)';
+    }
+    
+    // Mostrar contenido
+    if (manualContent[section]) {
+        contentDiv.innerHTML = manualContent[section];
+        
+        // Hacer scroll suave al contenido
+        contentDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Cuando se abre el modal, mostrar la sección correspondiente a la base de datos actual
+function showCreateModal() {
+    if (!currentDb) {
+        showNotification('Selecciona una base de datos primero', 'error');
+        return;
+    }
+    
+    document.getElementById('modalTitle').textContent = 'Nuevo Registro';
+    document.getElementById('docId').value = '';
+    document.getElementById('docRev').value = '';
+    document.getElementById('aiContextBox').style.display = 'none';
+    
+    const container = document.getElementById('simpleFieldsContainer');
+    container.innerHTML = '';
+    
+    // Mostrar la sección del manual correspondiente
+    if (currentDb === 'chatbot_data') {
+        showManualSection('chatbot');
+        // Crear campos para chatbot_data
+        createChatbotFields();
+    } else if (currentDb === 'data_vacio') {
+        showManualSection('vacant');
+        // Crear campos para data_vacio
+        createVacantFields();
+    } else if (currentDb === 'data_frecuentquestion') {
+        // No mostrar sección de manual (es automático)
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px;">
+                <div style="font-size: 4em; margin-bottom: 20px; color: #f59e0b;">🔒</div>
+                <h3 style="color: #f59e0b; font-size: 1.8em; margin-bottom: 15px;">SISTEMA AUTOMÁTICO</h3>
+                <p style="font-size: 1.3em; color: #64748b; line-height: 1.5;">
+                    Esta base de datos es de <strong>solo lectura</strong>.<br>
+                    Los documentos se generan automáticamente.
+                </p>
+                <p style="font-size: 1.1em; color: #94a3b8; margin-top: 20px;">
+                    No se pueden crear registros manualmente aquí.
+                </p>
+            </div>
+        `;
+        document.querySelector('.btn-add-field').style.display = 'none';
+        document.querySelector('.btn-save').style.display = 'none';
+    } else {
+        // Para otras bases de datos
+        addSimpleField('nombre', '');
+        addSimpleField('descripcion', '');
+    }
+    
+    document.getElementById('editModal').classList.add('active');
+}
+
+// Función para crear campos de chatbot_data con texto grande
+function createChatbotFields() {
+    const container = document.getElementById('simpleFieldsContainer');
+    
+    const fields = [
+        {
+            name: 'intencion',
+            placeholder: 'saludo, consultar_horario, preguntar_precio',
+            help: 'NOMBRE ÚNICO en minúsculas, sin espacios',
+            required: true
+        },
+        {
+            name: 'patrones',
+            placeholder: '["hola", "buenos días", "qué tal", "saludos"]',
+            help: 'MÍNIMO 5 frases diferentes. Entre corchetes []',
+            required: true,
+            textarea: true
+        },
+        {
+            name: 'respuestas',
+            placeholder: '["¡Hola! 👋", "Buenos días, ¿en qué puedo ayudarte?"]',
+            help: 'MÍNIMO 3 respuestas. Entre corchetes []',
+            required: true,
+            textarea: true
+        },
+        {
+            name: 'categoria',
+            placeholder: 'interaccion_basica, soporte_tecnico, informacion_general',
+            help: 'Para organizar las intenciones',
+            required: false
+        }
+    ];
+    
+    fields.forEach(field => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.style.marginBottom = '25px';
+        fieldDiv.style.padding = '20px';
+        fieldDiv.style.background = 'white';
+        fieldDiv.style.borderRadius = '12px';
+        fieldDiv.style.border = '2px solid #e5e7eb';
+        
+        if (field.textarea) {
+            fieldDiv.innerHTML = `
+                <label style="display: block; margin-bottom: 10px; color: var(--iuvade-primary); font-size: 1.2em; font-weight: bold;">
+                    ${field.name.toUpperCase()} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
+                </label>
+                <textarea 
+                    placeholder="${field.placeholder}"
+                    style="width: 100%; padding: 15px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1.1em; min-height: 120px; resize: vertical;"
+                    ${field.required ? 'required' : ''}
+                ></textarea>
+                <div style="font-size: 1em; color: #64748b; margin-top: 10px; padding: 10px; background: #f8fafc; border-radius: 6px;">
+                    💡 ${field.help}
+                </div>
+            `;
+        } else {
+            fieldDiv.innerHTML = `
+                <label style="display: block; margin-bottom: 10px; color: var(--iuvade-primary); font-size: 1.2em; font-weight: bold;">
+                    ${field.name.toUpperCase()} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
+                </label>
+                <input 
+                    type="text" 
+                    placeholder="${field.placeholder}"
+                    style="width: 100%; padding: 15px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1.1em;"
+                    ${field.required ? 'required' : ''}
+                >
+                <div style="font-size: 1em; color: #64748b; margin-top: 10px; padding: 10px; background: #f8fafc; border-radius: 6px;">
+                    💡 ${field.help}
+                </div>
+            `;
+        }
+        
+        container.appendChild(fieldDiv);
+    });
+}
+
+// Función para crear campos de data_vacio con texto grande
+function createVacantFields() {
+    const container = document.getElementById('simpleFieldsContainer');
+    
+    // Mensaje importante
+    const warningDiv = document.createElement('div');
+    warningDiv.style.background = 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+    warningDiv.style.padding = '20px';
+    warningDiv.style.borderRadius = '12px';
+    warningDiv.style.marginBottom = '25px';
+    warningDiv.style.borderLeft = '6px solid #f59e0b';
+    warningDiv.innerHTML = `
+        <h3 style="color: #92400e; font-size: 1.3em; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <span>⚠️</span> IMPORTANTE
+        </h3>
+        <p style="color: #92400e; font-size: 1.1em; margin: 0; line-height: 1.5;">
+            Después de completar este formulario, <strong>USA EL BOTÓN "MOVER"</strong> para transferir el documento a <strong>chatbot_data</strong>.
+        </p>
+    `;
+    container.appendChild(warningDiv);
+    
+    const fields = [
+        {
+            name: 'intencion',
+            placeholder: 'gestion_maquinas, consulta_nueva, pregunta_especifica',
+            help: 'Nombre descriptivo de la nueva consulta',
+            required: true
+        },
+        {
+            name: 'patrones',
+            placeholder: '["texto original del usuario", "variación 1", "variación 2", "variación 3"]',
+            help: 'AGREGA VARIACIONES (mínimo 3 diferentes)',
+            required: true,
+            textarea: true
+        },
+        {
+            name: 'respuestas',
+            placeholder: '["Respuesta completa y útil 1", "Otra forma de responder 2", "Alternativa adicional 3"]',
+            help: 'Respuestas COMPLETAS y de calidad (mínimo 3)',
+            required: true,
+            textarea: true
+        },
+        {
+            name: 'metadata.activo',
+            placeholder: 'true',
+            help: 'Cambia a TRUE para activar esta intención',
+            required: false
+        },
+        {
+            name: 'metadata.creado_manualmente',
+            placeholder: 'true',
+            help: 'Cambia a TRUE (era false cuando era automático)',
+            required: false
+        }
+    ];
+    
+    fields.forEach(field => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.style.marginBottom = '20px';
+        fieldDiv.style.padding = '15px';
+        fieldDiv.style.background = 'white';
+        fieldDiv.style.borderRadius = '10px';
+        fieldDiv.style.border = '2px solid #10b981';
+        
+        if (field.textarea) {
+            fieldDiv.innerHTML = `
+                <label style="display: block; margin-bottom: 10px; color: #10b981; font-size: 1.1em; font-weight: bold;">
+                    ${field.name.toUpperCase()} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
+                </label>
+                <textarea 
+                    placeholder="${field.placeholder}"
+                    style="width: 100%; padding: 12px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1.1em; min-height: 100px; resize: vertical;"
+                    ${field.required ? 'required' : ''}
+                ></textarea>
+                <div style="font-size: 0.95em; color: #64748b; margin-top: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
+                    💡 ${field.help}
+                </div>
+            `;
+        } else {
+            fieldDiv.innerHTML = `
+                <label style="display: block; margin-bottom: 10px; color: #10b981; font-size: 1.1em; font-weight: bold;">
+                    ${field.name.toUpperCase()} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
+                </label>
+                <input 
+                    type="text" 
+                    placeholder="${field.placeholder}"
+                    style="width: 100%; padding: 12px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1.1em;"
+                    ${field.required ? 'required' : ''}
+                >
+                <div style="font-size: 0.95em; color: #64748b; margin-top: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
+                    💡 ${field.help}
+                </div>
+            `;
+        }
+        
+        container.appendChild(fieldDiv);
+    });
+}
+</script>
+
+    <!-- Modal para Ver Detalles -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Información Completa</h2>
+                <button class="close-btn" onclick="closeDetailModal()">Cerrar</button>
+            </div>
+            
+            <div class="ai-context-box" id="detailAiContext">
+                <h3>Análisis Automático</h3>
+                <p id="detailAiText"></p>
+            </div>
+            
+            <div class="detail-view" id="detailView"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Mover Documento -->
+    <div class="modal" id="moveModal">
+        <div class="modal-content move-modal-content">
+            <div class="modal-header">
+                <h2>Mover Documento</h2>
+                <button class="close-btn" onclick="closeMoveModal()">Cerrar</button>
+            </div>
+            
+            <div class="move-info">
+                <strong>Documento:</strong> <span id="moveDocId"></span><br>
+                <strong>Base de datos actual:</strong> <span id="moveCurrentDb"></span>
+            </div>
+            
+            <h3 style="margin-bottom: 15px; color: var(--iuvade-primary);">Selecciona la base de datos destino:</h3>
+            
+            <div class="db-select-list" id="dbSelectList">
+                <div class="loading">Cargando bases de datos...</div>
+            </div>
+            
+            <button class="btn btn-save" onclick="confirmMove()" id="confirmMoveBtn" disabled>Mover Documento</button>
+        </div>
+    </div>
+
+    <!-- Botón flotante de WhatsApp -->
+    <a href="https://wa.me/51989228834" 
+       class="whatsapp-float" 
+       target="_blank" 
+       title="Contactar por WhatsApp">
+       <img src="../static/images/wat.png" alt="WhatsApp" style="width: 100%; height: 100%;">
+    </a>
+    <!-- Asistente iuvadito -->
+
+         <!-- Contenedor de Textos de Ayuda -->
+    
+
+    <!-- Contenedor Fijo del Asistente (Bottom Right) -->
+    <div class="fixed bottom-0 right-0 p-4 sm:p-8 flex flex-col items-end z-50">
+        
+        <!-- Burbuja de Diálogo (Nube) -->
+        <div id="speech-bubble" class="speech-bubble mb-4 w-64 md:w-80 transition-all duration-300 opacity-0 -translate-y-4 scale-90 origin-bottom-right pointer-events-none">
+            
+            <p class="font-bold text-center text-lg text-green-700 mb-3 border-b pb-2">¡Hola! Soy tu Asistente</p>
+            <p class="text-sm text-gray-700 mb-4">¿En qué puedo ayudarte hoy?</p>
+            
+            <div id="options-container" class="space-y-2">
+                <!-- Botones de Opciones -->
+                <button onclick="displayInfo('opcion1')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4DD; Crear un Documento
+                </button>
+                <button onclick="displayInfo('opcion2')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4C1; Gestionar Archivos
+                </button>
+                <button onclick="displayInfo('opcion3')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x1F4A1; Consejos de Uso
+                </button>
+                <button onclick="displayInfo('opcion4')" class="guide-option w-full text-left p-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200">
+                    &#x2753; Soporte Técnico
+                </button>
+            </div>
+        </div>
+        <div id="info-boxes" class="mb-4 w-64 md:w-80 transition-all duration-300">
+            <!-- Aquí se mostrarán dinámicamente los cuadros de texto -->
+        </div>
+
+        <!-- Imagen del Asistente (Contenedor con animación) -->
+        <div id="assistant-container" class="w-32 h-48 md:w-40 md:h-64" onclick="toggleBubble()">
+            <img 
+                src="../static/images/iuvadito.png" 
+                alt="Asistente digital con audífonos y tablet" 
+                class="w-full h-full object-contain">
+        </div>
+
+    </div>
+
+    
+
+    <script>
+        // Objeto para almacenar la información de ayuda
+        const guideInfo = {
+            opcion1: {
+                title: "Crear un Documento Nuevo",
+                text: "Para comenzar un nuevo proyecto, haz clic en el botón 'Nuevo' en la esquina superior izquierda. Se abrirá una plantilla en blanco lista para que empieces a escribir. ¡No olvides guardar tu progreso!",
+                color: "bg-blue-100 border-blue-400 text-blue-800"
+            },
+            opcion2: {
+                title: "Gestionar Archivos",
+                text: "Puedes ver todos tus archivos guardados en la sección 'Mis Documentos'. Para organizar, usa la opción 'Crear Carpeta' y arrastra tus archivos. Usa la barra de búsqueda para encontrar archivos rápidamente por nombre o fecha.",
+                color: "bg-green-100 border-green-400 text-green-800"
+            },
+            opcion3: {
+                title: "Consejos de Uso",
+                text: "Aprovecha los atajos de teclado para ser más eficiente. Usa la barra lateral para acceder rápidamente a plantillas y herramientas. ¡Explora todas las funciones!",
+                color: "bg-yellow-100 border-yellow-400 text-yellow-800"
+            },
+            opcion4: {
+                title: "Soporte Técnico",
+                text: "Si encuentras algún problema o error, verifica primero nuestra sección de 'Preguntas Frecuentes'. Si no encuentras la solución, haz clic en el botón 'Contactar Soporte' (simulado aquí) o reinicia la aplicación para intentar resolver el fallo.",
+                color: "bg-red-100 border-red-400 text-red-800"
+            }
+        };
+
+        const bubble = document.getElementById('speech-bubble');
+        const infoBoxesContainer = document.getElementById('info-boxes');
+        let isBubbleVisible = false;
+
+        /**
+         * Muestra u oculta la burbuja de diálogo del asistente.
+         */
+        function toggleBubble() {
+            isBubbleVisible = !isBubbleVisible;
+            if (isBubbleVisible) {
+                // Mostrar con animación
+                bubble.classList.remove('opacity-0', '-translate-y-4', 'scale-90', 'pointer-events-none');
+                bubble.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+            } else {
+                // Ocultar con animación
+                bubble.classList.add('opacity-0', '-translate-y-4', 'scale-90', 'pointer-events-none');
+                bubble.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+            }
+        }
+
+        /**
+         * Muestra el cuadro de texto de ayuda correspondiente a la opción seleccionada.
+         * @param {string} optionKey - La clave de la opción (e.g., 'opcion1').
+         */
+        function displayInfo(optionKey) {
+            const info = guideInfo[optionKey];
+            if (!info) return;
+
+            // 1. Ocultar la burbuja después de la selección
+            toggleBubble();
+
+            // 2. Limpiar cuadros de texto previos
+            infoBoxesContainer.innerHTML = '';
+
+            // 3. Crear el nuevo cuadro de texto
+            const infoBox = document.createElement('div');
+            infoBox.className = `p-4 sm:p-6 rounded-xl border-l-4 shadow-lg ${info.color} transition-all duration-500 ease-in-out`;
+            
+            infoBox.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <h2 class="text-xl font-semibold mb-2">${info.title}</h2>
+                    <button class="text-gray-500 hover:text-gray-700" onclick="this.parentNode.parentNode.remove()">
+                        <!-- Icono de Cierre (SVG) -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-sm">${info.text}</p>
+            `;
+            
+            // 4. Insertar el nuevo cuadro de texto en el contenedor
+            infoBoxesContainer.appendChild(infoBox);
+
+            // 5. Scroll hasta el nuevo cuadro de texto para visibilidad
+            infoBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+    
+
+    <script>
+        //Inicio de el menú desplegable de el boton crear 
+        
+        
+        //Final  de el menú desplegable de el boton crear
+        let currentDb = null;
+        let allDocuments = [];
+        let documentSchema = {};
+        let allDatabases = [];
+        let moveDocData = null;
+        let selectedTargetDb = null;
+
+        async function loadDatabases() {
+            try {
+                const response = await fetch('/api/databases');
+                const databases = await response.json();
+                allDatabases = databases;
+                
+                const dbList = document.getElementById('dbList');
+                dbList.innerHTML = '';
+                
+                databases.forEach(db => {
+                    const li = document.createElement('li');
+                    li.className = 'db-item';
+                    li.textContent = db;
+                    li.onclick = () => selectDatabase(db);
+                    dbList.appendChild(li);
+                });
+            } catch (error) {
+                showNotification('Error al cargar bases de datos', 'error');
+            }
+        }
+
+        async function selectDatabase(dbName) {
+            currentDb = dbName;
+            
+            document.querySelectorAll('.db-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent === dbName) {
+                    item.classList.add('active');
+                }
+            });
+
+            document.getElementById('toolbar').style.display = 'flex';
+            await loadDocuments(dbName);
+        }
+
+        async function loadDocuments(dbName) {
+            const grid = document.getElementById('documentsGrid');
+            grid.innerHTML = '<div class="loading">Cargando documentos...</div>';
+            
+            try {
+                const response = await fetch(`/api/documents/${dbName}`);
+                const data = await response.json();
+                allDocuments = data.documents;
+                
+                if (allDocuments.length > 0) {
+                    const firstDoc = allDocuments[0];
+                    documentSchema = {};
+                    Object.keys(firstDoc).forEach(key => {
+                        if (!key.startsWith('_')) {
+                            documentSchema[key] = '';
+                        }
+                    });
+                }
+                
+                displayDocuments(allDocuments);
+            } catch (error) {
+                showNotification('Error al cargar documentos', 'error');
+                grid.innerHTML = '<div class="loading">Error al cargar documentos</div>';
+            }
+        }
+
+        function formatValue(value) {
+            if (value === null || value === undefined) {
+                return '<span class="empty-message">(vacío)</span>';
+            }
+            if (typeof value === 'object') {
+                return JSON.stringify(value, null, 2);
+            }
+            if (value === '') {
+                return '<span class="empty-message">(vacío)</span>';
+            }
+            return String(value);
+        }
+
+        function displayDocuments(documents) {
+            const grid = document.getElementById('documentsGrid');
+            
+            if (documents.length === 0) {
+                grid.innerHTML = '<div class="loading">No hay documentos. Crea uno nuevo</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            documents.forEach(doc => {
+                const card = document.createElement('div');
+                card.className = 'document-card';
+                
+                const fields = Object.entries(doc)
+                    .filter(([key]) => !key.startsWith('_'))
+                    .slice(0, 4)
+                    .map(([key, value]) => {
+                        const displayValue = formatValue(value);
+                        return `
+                            <div class="doc-field">
+                                <strong>${key}</strong>
+                                <div class="doc-field-value">${displayValue}</div>
+                            </div>
+                        `;
+                    })
+                    .join('');
+                
+                card.innerHTML = `
+                    <div class="doc-id">ID: ${doc._id}</div>
+                    <div class="doc-preview">${fields || '<div class="empty-message">Sin campos adicionales</div>'}</div>
+                    <div class="doc-actions">
+                        <button class="btn btn-view" onclick='viewDocumentSafe("${doc._id}")'>Ver</button>
+                        <button class="btn btn-edit" onclick='editDocumentSafe("${doc._id}")'>Editar</button>
+                        <button class="btn btn-move" onclick='showMoveModal("${doc._id}")'>Mover</button>
+                        <button class="btn btn-delete" onclick='deleteDocument("${doc._id}", "${doc._rev}")'>Eliminar</button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function viewDocumentSafe(docId) {
+            const doc = allDocuments.find(d => d._id === docId);
+            if (doc) {
+                viewDocument(doc);
+            }
+        }
+
+        function editDocumentSafe(docId) {
+            const doc = allDocuments.find(d => d._id === docId);
+            if (doc) {
+                editDocument(doc);
+            }
+        }
+
+        async function viewDocument(doc) {
+            try {
+                const response = await fetch('/api/generate-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(doc)
+                });
+                const data = await response.json();
+                document.getElementById('detailAiText').textContent = data.context;
+            } catch (error) {
+                document.getElementById('detailAiText').textContent = 'Contexto no disponible';
+            }
+            
+            const detailView = document.getElementById('detailView');
+            detailView.innerHTML = '';
+            
+            Object.entries(doc).forEach(([key, value]) => {
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'detail-field';
+                
+                const displayValue = formatValue(value);
+                
+                fieldDiv.innerHTML = `
+                    <div class="detail-field-key">${key}</div>
+                    <div class="detail-field-value">${displayValue}</div>
+                `;
+                
+                detailView.appendChild(fieldDiv);
+            });
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        function showCreateModal() {
+            if (!currentDb) {
+                showNotification('Selecciona una base de datos primero', 'error');
+                return;
+            }
+            
+            document.getElementById('modalTitle').textContent = 'Nuevo Registro';
+            document.getElementById('docId').value = '';
+            document.getElementById('docRev').value = '';
+            document.getElementById('aiContextBox').style.display = 'none';
+            
+            const container = document.getElementById('simpleFieldsContainer');
+            container.innerHTML = '';
+            
+            if (Object.keys(documentSchema).length > 0) {
+                Object.keys(documentSchema).forEach(key => {
+                    addSimpleField(key, '');
+                });
+            } else {
+                addSimpleField('nombre', '');
+                addSimpleField('descripcion', '');
+                addSimpleField('fecha', '');
+            }
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        async function editDocument(doc) {
+            document.getElementById('modalTitle').textContent = 'Editar Registro';
+            document.getElementById('docId').value = doc._id;
+            document.getElementById('docRev').value = doc._rev;
+            
+            document.getElementById('aiContextBox').style.display = 'block';
+            document.getElementById('aiContextText').textContent = 'Generando análisis inteligente...';
+            
+            try {
+                const response = await fetch('/api/generate-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(doc)
+                });
+                const data = await response.json();
+                document.getElementById('aiContextText').textContent = data.context;
+            } catch (error) {
+                document.getElementById('aiContextText').textContent = 'No se pudo generar el contexto automático';
+            }
+            
+            const container = document.getElementById('simpleFieldsContainer');
+            container.innerHTML = '';
+            
+            Object.entries(doc).forEach(([key, value]) => {
+                if (!key.startsWith('_')) {
+                    let displayValue = value;
+                    if (typeof value === 'object' && value !== null) {
+                        displayValue = JSON.stringify(value, null, 2);
+                    }
+                    addSimpleField(key, displayValue);
+                }
+            });
+            
+            if (container.children.length === 0 && Object.keys(documentSchema).length > 0) {
+                Object.keys(documentSchema).forEach(key => {
+                    addSimpleField(key, '');
+                });
+            }
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function addSimpleField(key = '', value = '') {
+            const container = document.getElementById('simpleFieldsContainer');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'form-group';
+            
+            const fieldId = 'field_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            let isComplex = false;
+            let displayValue = value;
+            
+            if (typeof value === 'string' && value.trim().length > 0) {
+                try {
+                    const parsed = JSON.parse(value);
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        isComplex = true;
+                        displayValue = JSON.stringify(parsed, null, 2);
+                    }
+                } catch (e) {
+                    // No es JSON, mantener como string
+                }
+            }
+            
+            const valueEscaped = String(displayValue).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const keyEscaped = String(key).replace(/"/g, '&quot;');
+            
+            const isPatternField = key.toLowerCase() === 'patrones' || 
+                                   key.toLowerCase() === 'patron' || 
+                                   key.toLowerCase() === 'patterns' || 
+                                   key.toLowerCase() === 'pattern';
+            
+            const isEmbeddingField = key.toLowerCase() === 'embedding' || 
+                                     key.toLowerCase() === 'embeddings';
+            
+            if (isComplex || isEmbeddingField) {
+                let embeddingControls = '';
+                if (isEmbeddingField) {
+                    try {
+                        const arr = JSON.parse(displayValue || '[]');
+                        embeddingControls = `
+                            <div class="embedding-info">
+                                Vector de ${Array.isArray(arr) ? arr.length : 0} dimensiones
+                            </div>
+                        `;
+                    } catch (e) {
+                        embeddingControls = '<div class="embedding-info">Vector de embedding</div>';
+                    }
+                }
+                
+                const deleteHandler = `deleteFieldElement(this)`;
+                
+                fieldDiv.innerHTML = `
+                    <label for="${fieldId}">
+                        ${keyEscaped || 'Nombre del campo'}
+                        ${key ? '' : '<input type="text" class="field-name-input" placeholder="Escribe el nombre del campo" style="margin-top: 5px;">'}
+                    </label>
+                    <textarea id="${fieldId}" class="field-value-input" data-field-name="${keyEscaped}" rows="5" ${isEmbeddingField ? 'readonly' : ''}>${valueEscaped}</textarea>
+                    <div class="help-text">Este campo contiene datos estructurados (JSON)</div>
+                    ${embeddingControls}
+                    <button type="button" class="btn btn-delete" style="margin-top: 10px; width: auto; padding: 8px 16px; font-size: 0.85em;" onclick="${deleteHandler}">Eliminar Campo</button>
+                `;
+            } else {
+                let embeddingButton = '';
+                if (isPatternField) {
+                    embeddingButton = `
+                        <div class="embedding-controls">
+                            <button type="button" class="btn-generate-embedding" data-field-id="${fieldId}" onclick="handleGenerateEmbedding(this)">
+                                Generar Embedding con IA
+                            </button>
+                            <span class="embedding-status" id="status-${fieldId}" style="display: none;">
+                                <span class="spinner"></span> Generando...
+                            </span>
+                        </div>
+                        <div class="help-text" style="margin-top: 5px;">
+                            El embedding se generará automáticamente y se guardará en el campo "embedding"
+                        </div>
+                    `;
+                }
+                
+                const deleteHandler = `deleteFieldElement(this)`;
+                
+                fieldDiv.innerHTML = `
+                    <label for="${fieldId}">
+                        ${keyEscaped || 'Nombre del campo'}
+                        ${key ? '' : '<input type="text" class="field-name-input" placeholder="Escribe el nombre del campo" style="margin-top: 5px;">'}
+                    </label>
+                    <input type="text" id="${fieldId}" class="field-value-input" data-field-name="${keyEscaped}" value="${valueEscaped}" placeholder="Escribe el valor aquí">
+                    <div class="help-text">Solo escribe la información en este campo</div>
+                    ${embeddingButton}
+                    <button type="button" class="btn btn-delete" style="margin-top: 10px; width: auto; padding: 8px 16px; font-size: 0.85em;" onclick="${deleteHandler}">Eliminar Campo</button>
+                `;
+            }
+            
+            container.appendChild(fieldDiv);
+        }
+
+        function deleteFieldElement(button) {
+            button.closest('.form-group').remove();
+        }
+
+        function handleGenerateEmbedding(button) {
+            const fieldId = button.getAttribute('data-field-id');
+            generateEmbeddingForField(fieldId);
+        }
+
+        function addSimpleFieldButton() {
+            addSimpleField('', '');
+        }
+
+        async function generateEmbeddingForField(fieldId) {
+            const input = document.getElementById(fieldId);
+            const text = input.value.trim();
+            
+            if (!text) {
+                showNotification('El campo de patrones está vacío', 'error');
+                return;
+            }
+            
+            const statusElement = document.getElementById(`status-${fieldId}`);
+            const buttons = document.querySelectorAll('.btn-generate-embedding');
+            let targetButton = null;
+            
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-field-id') === fieldId) {
+                    targetButton = btn;
+                }
+            });
+            
+            if (targetButton) targetButton.disabled = true;
+            if (statusElement) statusElement.style.display = 'flex';
+            
+            try {
+                const response = await fetch('/api/generate-embedding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const container = document.getElementById('simpleFieldsContainer');
+                    let embeddingField = null;
+                    
+                    const allFields = container.querySelectorAll('.field-value-input');
+                    allFields.forEach(field => {
+                        const fieldName = field.dataset.fieldName.toLowerCase();
+                        if (fieldName === 'embedding' || fieldName === 'embeddings') {
+                            embeddingField = field;
+                        }
+                    });
+                    
+                    if (!embeddingField) {
+                        addSimpleField('embedding', JSON.stringify(data.embedding, null, 2));
+                        
+                        const allFieldsNew = container.querySelectorAll('.field-value-input');
+                        allFieldsNew.forEach(field => {
+                            const fieldName = field.dataset.fieldName.toLowerCase();
+                            if (fieldName === 'embedding' || fieldName === 'embeddings') {
+                                embeddingField = field;
+                            }
+                        });
+                    } else {
+                        embeddingField.value = JSON.stringify(data.embedding, null, 2);
+                    }
+                    
+                    if (statusElement) {
+                        statusElement.innerHTML = 'Embedding generado';
+                    }
+                    showNotification(`Embedding generado exitosamente (${data.dimension} dimensiones)`, 'success');
+                    
+                    setTimeout(() => {
+                        if (statusElement) {
+                            statusElement.style.display = 'none';
+                            statusElement.innerHTML = '<span class="spinner"></span> Generando...';
+                        }
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'Error al generar embedding');
+                }
+            } catch (error) {
+                if (statusElement) {
+                    statusElement.innerHTML = 'Error';
+                }
+                showNotification('Error al generar embedding: ' + error.message, 'error');
+                
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.style.display = 'none';
+                        statusElement.innerHTML = '<span class="spinner"></span> Generando...';
+                    }
+                }, 3000);
+            } finally {
+                if (targetButton) targetButton.disabled = false;
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        document.getElementById('documentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentDb) return;
+            
+            const container = document.getElementById('simpleFieldsContainer');
+            const formGroups = container.querySelectorAll('.form-group');
+            const docData = {};
+            
+            let hasError = false;
+            
+            formGroups.forEach(group => {
+                const nameInput = group.querySelector('.field-name-input');
+                const valueInput = group.querySelector('.field-value-input');
+                
+                let fieldName = valueInput.dataset.fieldName;
+                
+                if (nameInput && nameInput.value.trim()) {
+                    fieldName = nameInput.value.trim();
+                }
+                
+                if (!fieldName) {
+                    showNotification('Por favor completa el nombre del campo', 'error');
+                    hasError = true;
+                    return;
+                }
+                
+                let value = valueInput.value;
+                
+                if (valueInput.tagName === 'TEXTAREA') {
+                    try {
+                        const parsed = JSON.parse(value);
+                        value = parsed;
+                    } catch (e) {
+                        if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+                            showNotification(`El campo "${fieldName}" tiene formato JSON inválido`, 'error');
+                            hasError = true;
+                            return;
+                        }
+                    }
+                }
+                
+                docData[fieldName] = value;
+            });
+            
+            if (hasError) return;
+            
+            const docId = document.getElementById('docId').value;
+            const docRev = document.getElementById('docRev').value;
+            
+            if (docRev) {
+                docData._rev = docRev;
+            }
+            
+            try {
+                const url = docId 
+                    ? `/api/document/${currentDb}/${docId}`
+                    : `/api/document/${currentDb}`;
+                
+                const method = docId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(docData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification(docId ? 'Registro actualizado correctamente' : 'Registro creado correctamente', 'success');
+                    closeEditModal();
+                    await loadDocuments(currentDb);
+                } else {
+                    showNotification('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error al guardar el registro', 'error');
+            }
+        });
+
+        async function deleteDocument(docId, docRev) {
+            if (!confirm('¿Estás seguro de eliminar este registro?')) return;
+            
+            try {
+                const response = await fetch(`/api/document/${currentDb}/${docId}?rev=${docRev}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showNotification('Registro eliminado', 'success');
+                    await loadDocuments(currentDb);
+                } else {
+                    showNotification('Error al eliminar', 'error');
+                }
+            } catch (error) {
+                showNotification('Error al eliminar el registro', 'error');
+            }
+        }
+
+        function showMoveModal(docId) {
+            const doc = allDocuments.find(d => d._id === docId);
+            if (!doc) return;
+            
+            moveDocData = doc;
+            selectedTargetDb = null;
+            
+            document.getElementById('moveDocId').textContent = docId;
+            document.getElementById('moveCurrentDb').textContent = currentDb;
+            document.getElementById('confirmMoveBtn').disabled = true;
+            
+            const dbSelectList = document.getElementById('dbSelectList');
+            dbSelectList.innerHTML = '';
+            
+            allDatabases.forEach(db => {
+                if (db !== currentDb) {
+                    const item = document.createElement('div');
+                    item.className = 'db-select-item';
+                    item.textContent = db;
+                    item.onclick = () => selectTargetDb(db, item);
+                    dbSelectList.appendChild(item);
+                }
+            });
+            
+            if (dbSelectList.children.length === 0) {
+                dbSelectList.innerHTML = '<div class="loading">No hay otras bases de datos disponibles</div>';
+            }
+            
+            document.getElementById('moveModal').classList.add('active');
+        }
+
+        function selectTargetDb(dbName, element) {
+            document.querySelectorAll('.db-select-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            selectedTargetDb = dbName;
+            document.getElementById('confirmMoveBtn').disabled = false;
+        }
+
+        function closeMoveModal() {
+            document.getElementById('moveModal').classList.remove('active');
+            moveDocData = null;
+            selectedTargetDb = null;
+        }
+
+        async function confirmMove() {
+            if (!moveDocData || !selectedTargetDb) return;
+            
+            try {
+                const response = await fetch('/api/move-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source_db: currentDb,
+                        target_db: selectedTargetDb,
+                        doc_id: moveDocData._id,
+                        doc_rev: moveDocData._rev
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification(`Documento movido exitosamente a ${selectedTargetDb}`, 'success');
+                    closeMoveModal();
+                    await loadDocuments(currentDb);
+                } else {
+                    showNotification('Error al mover: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error al mover el documento', 'error');
+            }
+        }
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = allDocuments.filter(doc => 
+                JSON.stringify(doc).toLowerCase().includes(searchTerm)
+            );
+            displayDocuments(filtered);
+        });
+
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target.id === 'editModal') {
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') {
+                closeDetailModal();
+            }
+        });
+
+        document.getElementById('moveModal').addEventListener('click', (e) => {
+            if (e.target.id === 'moveModal') {
+                closeMoveModal();
+            }
+        });
+
+        function showNotification(message, type) {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 4000);
+        }
+
+        loadDatabases();
+    </script>
+</body>
+</html> 

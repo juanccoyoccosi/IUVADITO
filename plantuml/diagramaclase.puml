@@ -1,0 +1,188 @@
+@startuml Diagrama_Clases_Chatbot
+
+' Configuración de estilo
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor<<external>> LightYellow
+    BorderColor<<external>> Orange
+    BackgroundColor<<model>> LightBlue
+    BorderColor<<model>> Blue
+    BackgroundColor<<main>> LightGreen
+    BorderColor<<main>> Green
+}
+
+' Clase Principal
+class IntentClassifier <<main>> {
+    - modelo : SentenceTransformer
+    - intent_embeddings : dict
+    - db : Database
+    - gemini_model : GenerativeModel
+    - GEMINI_API_KEY : str
+    - campo_texto : str
+    - campo_embeddings : str
+    
+    + __init__(db, campo_texto, campo_embeddings)
+    + classify_with_rag(query: str, threshold: float) : Tuple[str, float, str]
+    + generate_response_with_gemini(query: str, context_doc: dict) : str
+    + generate_response_with_gemini_unknown(query: str, best_doc: dict) : str
+    - _call_gemini_api(prompt: str) : str
+}
+
+' Clase Flask Application
+class FlaskApp <<main>> {
+    - app : Flask
+    - classifier : IntentClassifier
+    - db : Database
+    - db_consultas : Database
+    - USERNAME : str
+    - PASSWORD : str
+    - DATABASE : str
+    
+    + responder() : jsonify
+    + run(host, port, ssl_context)
+}
+
+' Modelo de Datos - Documento
+class Documento {
+    - _id : str
+    - nombre : str
+    - mensaje : str
+    - texto : str
+    - remoteJid : str
+    - timestamp : datetime
+    - canal : str
+    - procesado : bool
+    - intencion : str
+    - embedding : dict
+    
+    + save()
+}
+
+' Modelo de Datos - Intent Document
+class IntentDocument {
+    - _id : str
+    - patrones : list[str]
+    - respuestas : list[str]
+    - categoria : str
+    - embedding : list[float]
+    
+    + get_patterns() : list
+    + get_responses() : list
+    + get_embedding() : list
+}
+
+' Clase Request/Response
+class RequestData {
+    - body : dict
+    - timestamp : str
+    
+    + get_message() : str
+    + get_pushName() : str
+    + get_remoteJid() : str
+}
+
+class ResponseData {
+    - text : str
+    - estado : str
+    
+    + to_json() : dict
+}
+
+' Modelos Externos
+class SentenceTransformer <<external>> {
+    + encode(texts: list) : ndarray
+}
+
+class GenerativeModel <<external>> {
+    + generate_content(prompt, config) : Response
+}
+
+class CouchDB <<external>> {
+    - server : Server
+    - username : str
+    - password : str
+    - host : str
+    - port : int
+    
+    + save(doc)
+    + get(doc_id) : dict
+    + __getitem__(doc_id) : dict
+}
+
+class Flask <<external>> {
+    + route(path, methods)
+    + run(host, port, ssl_context)
+}
+
+' Utilidades
+class EmbeddingUtils {
+    + calculate_cosine_similarity(vec1, vec2) : float
+    + normalize_vector(vector) : ndarray
+}
+
+class PromptBuilder {
+    + build_context_prompt(query, context_doc) : str
+    + build_unknown_prompt(query, best_doc) : str
+}
+
+' Relaciones principales
+FlaskApp --> IntentClassifier : uses
+FlaskApp --> CouchDB : connects to
+FlaskApp --> RequestData : receives
+FlaskApp --> ResponseData : returns
+FlaskApp --> Documento : creates
+
+IntentClassifier --> SentenceTransformer : uses
+IntentClassifier --> GenerativeModel : uses
+IntentClassifier --> CouchDB : reads from
+IntentClassifier --> IntentDocument : processes
+IntentClassifier --> EmbeddingUtils : uses
+IntentClassifier --> PromptBuilder : uses
+
+Documento --> CouchDB : stored in
+IntentDocument --> CouchDB : stored in
+
+' Composición
+IntentClassifier *-- "1" SentenceTransformer
+IntentClassifier *-- "1" GenerativeModel
+FlaskApp *-- "1" IntentClassifier
+
+' Dependencias
+IntentClassifier ..> IntentDocument : reads
+FlaskApp ..> Documento : creates
+IntentClassifier ..> EmbeddingUtils : uses
+IntentClassifier ..> PromptBuilder : uses
+
+' Notas
+note right of IntentClassifier
+  **Clasificador Principal**
+  - Genera embeddings con Sentence Transformers
+  - Clasifica intenciones con similitud coseno
+  - Genera respuestas con Gemini 2.5 Flash
+  - Implementa sistema RAG
+  - Threshold por defecto: 0.3
+end note
+
+note left of FlaskApp
+  **API REST Flask**
+  - Endpoint: /bot (POST)
+  - Puerto: configurable (default 5000)
+  - Conexión HTTPS con certificados SSL
+  - Guarda consultas en CouchDB
+end note
+
+note bottom of CouchDB
+  **Bases de Datos:**
+  - chatbot_data: documentos de intenciones
+  - data_frecuentquestion: consultas de usuarios
+  Host: 62.171.179.255:5984
+end note
+
+note top of GenerativeModel
+  **Gemini 2.5 Flash**
+  - Modelo: gemini-2.5-flash
+  - Temperature: 0.7
+  - Max tokens: 500
+end note
+
+@enduml
